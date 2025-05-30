@@ -1,0 +1,55 @@
+#!/bin/sh
+
+length=0
+COUNT=0
+NAME=""
+MSG=""
+
+for p in "$@"; do
+    length=$((length+1))
+    if  [ "$p" = "-h" ]; then
+        echo "Options:
+-h       Print this help message.
+-m MSG   Add message.
+-N NAME  Set name.
+-v       Add Verbosity."
+    exit
+    fi
+done
+
+while [ "$OPTIND" '<' "$length" ] ; do
+    while getopts m:N:v myflag; do
+        echo "$myflag"
+        case "$myflag" in
+            \?)
+                exit 1
+                ;;
+        esac
+    done
+    OPTIND=$((OPTIND+1))
+done
+
+OPTIND=1
+
+while [ "$OPTIND" '<' "$length" ] ; do
+    while getopts m:N:v myflag; do
+        case "$myflag" in
+            v)
+                COUNT=$((COUNT+1))
+                ;;
+            m)
+                MSG="$MSG$OPTARG"
+            ;;
+            N)
+                echo "a"
+                NAME="$OPTARG"
+                ;;
+        esac
+    done
+    OPTIND=$((OPTIND+1))
+done
+
+echo "v= $COUNT"
+echo "N= '$NAME'"
+
+
