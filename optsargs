@@ -6,6 +6,7 @@ NAME=""
 MSG=""
 
 for p in "$@"; do
+    # Check for -h regardless of position, arguments, and other options
     length=$((length+1))
     if  [ "$p" = "-h" ]; then
         echo "Options:
@@ -17,9 +18,11 @@ for p in "$@"; do
     fi
 done
 
-while [ "$OPTIND" '<' "$length" ] ; do
+OPTIND=1
+
+while [ $OPTIND -lt $((length+1)) ] ; do
+    # Check for Forbidden options regardels position, arguments, and other options
     while getopts m:N:v myflag; do
-        echo "$myflag"
         case "$myflag" in
             \?)
                 exit 1
@@ -31,17 +34,17 @@ done
 
 OPTIND=1
 
-while [ "$OPTIND" '<' "$length" ] ; do
+while [ $OPTIND -lt $((length+1)) ] ; do
+    #Perform therequired computation for allowed options
     while getopts m:N:v myflag; do
         case "$myflag" in
             v)
                 COUNT=$((COUNT+1))
                 ;;
             m)
-                MSG="$MSG$OPTARG"
+                MSG=$MSG"$OPTARG"
             ;;
             N)
-                echo "a"
                 NAME="$OPTARG"
                 ;;
         esac
@@ -49,7 +52,33 @@ while [ "$OPTIND" '<' "$length" ] ; do
     OPTIND=$((OPTIND+1))
 done
 
-echo "v= $COUNT"
-echo "N= '$NAME'"
+echo "v=$COUNT"
+if [ "$NAME" = "" ] ; then
+    # Set empty name to nobody
+    NAME="nobody"
+fi
+echo "N='$NAME'"
 
+OPTIND=1
+i=0
+f=0
 
+while [ $OPTIND -lt $((length+1)) ] ; do
+    # Print the non options and msg
+    while getopts m:N:v myflag;do
+        case "$myflag" in
+            m)
+                f=$((f+1))
+                ;;
+        esac
+    done
+    i=0
+    for p in "$@" ; do
+        i=$((i+1))
+        if [ $i -gt $((OPTIND-1)) ] ; then
+            echo "$p:$MSG"
+            break
+        fi
+    done
+    OPTIND=$((OPTIND+1))
+done
